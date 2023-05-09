@@ -104,7 +104,7 @@ init_expose() {
 build_expose() {
   expose_tmp="${TEMP_DIR}/expose.md"
   # combine all the markdown files into one
-  perl -ne 's/^\!include\s(.+)$/`cat /$1`/e;print' expose/_expose.md > "$expose_tmp"
+  perl -ne 's/^\!include\s(.+)$/`cat $1`/e;print' expose/_expose.md > "$expose_tmp"
 
   # remove all tags from the markdown
   perl -pi -e 's/---//g' "$expose_tmp"
@@ -129,7 +129,7 @@ build_book() {
   extension=$1
   book_tmp="${TEMP_DIR}/book.md"
   # combine all the markdown files into one
-  perl -ne 's/^\!include\s(.+)$/`cat /$1`/e;print' book/_toc.md > "$book_tmp"
+  perl -ne 's/^\!include\s(.+)$/`cat $1`/e;print' book/_toc.md > "$book_tmp"
 
   # remove all tags from the markdown
   perl -pi -e 's/---//g' "$book_tmp"
