@@ -64,25 +64,37 @@ init_expose() {
   echo '' >> "$filename"
   echo '!include expose/overview.md' >> "$filename"
   echo '' >> "$filename"
+  echo '\newpage' >> "$filename"
+  echo '' >> "$filename"
   echo '## Key Features' >> "$filename"
   echo '' >> "$filename"
   echo '!include expose/key_features.md' >> "$filename"
+  echo '' >> "$filename"
+  echo '\newpage' >> "$filename"
   echo '' >> "$filename"
   echo '## Target Audience' >> "$filename"
   echo '' >> "$filename"
   echo '!include expose/target_audience.md' >> "$filename"
   echo '' >> "$filename"
+  echo '\newpage' >> "$filename"
+  echo '' >> "$filename"
   echo '## Selling Points' >> "$filename"
   echo '' >> "$filename"
   echo '!include expose/selling_points.md' >> "$filename"
+  echo '' >> "$filename"
+  echo '\newpage' >> "$filename"
   echo '' >> "$filename"
   echo '## Similar Books' >> "$filename"
   echo '' >> "$filename"
   echo '!include expose/similar_books.md' >> "$filename"
   echo '' >> "$filename"
+  echo '\newpage' >> "$filename"
+  echo '' >> "$filename"
   echo '## About the Author' >> "$filename"
   echo '' >> "$filename"
   echo '!include book/about_the_author.md' >> "$filename"
+  echo '' >> "$filename"
+  echo '\newpage' >> "$filename"
   echo '' >> "$filename"
   echo '## Text Sample' >> "$filename"
   echo '' >> "$filename"
@@ -180,6 +192,13 @@ case "$1" in
     mkdir -p marketing
 
     touch book/_toc.md
+    echo '---' > book/_toc.md
+    echo 'tag: todo' >> book/_toc.md
+    echo '---' >> book/_toc.md
+    echo '' >> book/_toc.md
+    echo "" >> book/_toc.md
+    echo "# $TITLE" >> book/_toc.md
+    echo "" >> "book/_toc.md"
 
     init_file "expose/key_features.md" "Write key features"
     init_file "expose/overview.md" "Write short overview"
@@ -216,9 +235,11 @@ case "$1" in
         echo '---' >> "book/$PART_TITLE_SLUG/_toc.md"
         echo '' >> "book/$PART_TITLE_SLUG/_toc.md"
         echo "" >> "book/_toc.md"
-        echo "# $PART_TITLE" >> "book/_toc.md"
+        echo "## $PART_TITLE" >> "book/_toc.md"
         echo "" >> "book/_toc.md"
         echo "!include book/$PART_TITLE_SLUG/_toc.md" >> book/_toc.md
+        echo "" >> "book/_toc.md"
+        echo "\newpage" >> "book/_toc.md"
         echo "" >> "book/_toc.md"
         echo "Done. Now run 'ebg add chapter' to add a chapter to the part."
         ;;
@@ -246,9 +267,11 @@ case "$1" in
         echo '---' >> "book/$PART/$CHAPTER_TITLE_SLUG.md"
         echo '' >> "book/$PART/$CHAPTER_TITLE_SLUG.md"
         echo "" >> "book/$PART/_toc.md"
-        echo "## $CHAPTER_TITLE" >> "book/$PART/_toc.md"
+        echo "### $CHAPTER_TITLE" >> "book/$PART/_toc.md"
         echo "" >> "book/$PART/_toc.md"
         echo "!include book/$PART/$CHAPTER_TITLE_SLUG.md" >> "book/$PART/_toc.md"
+        echo "" >> "book/$PART/_toc.md"
+        echo "\newpage" >> "book/$PART/_toc.md"
         echo "" >> "book/$PART/_toc.md"
         echo "Done. Now run 'ebg build book' to build the book."
         ;;
