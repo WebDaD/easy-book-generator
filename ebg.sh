@@ -58,6 +58,8 @@ init_expose() {
   echo 'tag: todo' >> "$filename"
   echo '---' >> "$filename"
   echo '' >> "$filename"
+  echo '# Expose' >> "$filename"
+  echo '' >> "$filename"
   echo '## Overview' >> "$filename"
   echo '' >> "$filename"
   echo '!include expose/overview.md' >> "$filename"
@@ -132,7 +134,7 @@ build_book() {
   perl -pi -e 's/\n\n\n/\n\n/g' "$book_tmp"
 
   # convert to pdf
-  pandoc "$book_tmp" -o "export/book.$extension"
+  pandoc "$book_tmp" --metadata-file=metadata.yaml --toc -o "export/book.$extension"
 
   # try to open file in preview
   open "export/book.$extension"
@@ -235,34 +237,31 @@ case "$1" in
         ;;
       chapter)
         # must be in a part folder or part is specified via slug
-        if [[ "$(basename "$(pwd)")" != "book" || ! -f "_toc.md" ]]; then
-          echo "Error: You are not in a part folder under the 'book' directory. Please change to a part folder or specify the part slug as the third argument."
-          exit 1
-        elif [[ -z "$3" ]]; then
-          echo "Error: You are not in a part folder under the 'book' directory. Please change to a part folder or specify the part slug as the third argument."
-          exit 1
-        elif [[ ! -d "$3" ]]; then
-          echo "Error: Folder '$3' does not exist under the 'book' directory."
-          exit 1
+        if [ -d "$(pwd)/book/$3" ]; then
+          PART="$3"
+        elif [[ "$(basename "$(dirname "$(pwd)")")" == "book" && -f "_toc.md" ]]; then
+          PART="$(basename "$(pwd)")"
         else
-          PART="${3:-$(basename "$(pwd)")}"
+          echo "Error: You are not in a part folder under the 'book' directory. Please change to a part folder or specify the part slug as the third argument."
+          exit 1
         fi
         CHAPTER_TITLE=$(get_string "$4" "chapter title")
         CHAPTER_TITLE_SLUG=$(slugify "$CHAPTER_TITLE")
         echo "Adding new chapter with title $CHAPTER_TITLE to part $PART..."
+        MYPATH="$(pwd)/book"
         # perform add logic
-        touch "book/$PART/$CHAPTER_TITLE_SLUG.md"
-        echo '---' > "book/$PART/$CHAPTER_TITLE_SLUG.md"
-        echo 'tag: todo' >> "book/$PART/$CHAPTER_TITLE_SLUG.md"
-        echo '---' >> "book/$PART/$CHAPTER_TITLE_SLUG.md"
-        echo '' >> "book/$PART/$CHAPTER_TITLE_SLUG.md"
-        echo "" >> "book/$PART/_toc.md"
-        echo "### $CHAPTER_TITLE" >> "book/$PART/_toc.md"
-        echo "" >> "book/$PART/_toc.md"
-        echo "!include book/$PART/$CHAPTER_TITLE_SLUG.md" >> "book/$PART/_toc.md"
-        echo "" >> "book/$PART/_toc.md"
-        echo "\newpage" >> "book/$PART/_toc.md"
-        echo "" >> "book/$PART/_toc.md"
+        touch "$MYPATH/$PART/$CHAPTER_TITLE_SLUG.md"
+        echo '---' > "$MYPATH/$PART/$CHAPTER_TITLE_SLUG.md"
+        echo 'tag: todo' >> "$MYPATH/$PART/$CHAPTER_TITLE_SLUG.md"
+        echo '---' >> "$MYPATH/$PART/$CHAPTER_TITLE_SLUG.md"
+        echo '' >> "$MYPATH/$PART/$CHAPTER_TITLE_SLUG.md"
+        echo "" >> "$MYPATH/$PART/_toc.md"
+        echo "### $CHAPTER_TITLE" >> "$MYPATH/$PART/_toc.md"
+        echo "" >> "$MYPATH/$PART/_toc.md"
+        echo "!include book/$PART/$CHAPTER_TITLE_SLUG.md" >> "$MYPATH/$PART/_toc.md"
+        echo "" >> "$MYPATH/$PART/_toc.md"
+        echo "\newpage" >> "$MYPATH/$PART/_toc.md"
+        echo "" >> "$MYPATH/$PART/_toc.md"
         echo "Done. Now run 'ebg build book' to build the book."
         ;;
       *)
