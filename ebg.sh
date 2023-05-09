@@ -217,6 +217,7 @@ case "$1" in
         echo '' >> "book/$PART_TITLE_SLUG/_toc.md"
         echo "" >> "book/_toc.md"
         echo "# $PART_TITLE" >> "book/_toc.md"
+        echo "" >> "book/_toc.md"
         echo "!include book/$PART_TITLE_SLUG/_toc.md" >> book/_toc.md
         echo "" >> "book/_toc.md"
         echo "Done. Now run 'ebg add chapter' to add a chapter to the part."
@@ -246,6 +247,7 @@ case "$1" in
         echo '' >> "book/$PART/$CHAPTER_TITLE_SLUG.md"
         echo "" >> "book/$PART/_toc.md"
         echo "## $CHAPTER_TITLE" >> "book/$PART/_toc.md"
+        echo "" >> "book/$PART/_toc.md"
         echo "!include book/$PART/$CHAPTER_TITLE_SLUG.md" >> "book/$PART/_toc.md"
         echo "" >> "book/$PART/_toc.md"
         echo "Done. Now run 'ebg build book' to build the book."
