@@ -58,8 +58,6 @@ init_expose() {
   echo 'tag: todo' >> "$filename"
   echo '---' >> "$filename"
   echo '' >> "$filename"
-  echo "# $title" >> "$filename"
-  echo '' >> "$filename"
   echo '## Overview' >> "$filename"
   echo '' >> "$filename"
   echo '!include expose/overview.md' >> "$filename"
@@ -113,14 +111,9 @@ build_expose() {
   # combine triple new lines into one
   perl -pi -e 's/\n\n\n/\n\n/g' "$expose_tmp"
 
-  # remove all new lines at the beginning of the file
-  perl -pi -e 's/^\n//g' "$expose_tmp"
-
-  # remove all new lines at the end of the file
-  perl -pi -e 's/\n$//g' "$expose_tmp"
 
   # convert to pdf
-  pandoc "$expose_tmp" -o "export/expose.pdf"
+  pandoc "$expose_tmp" --metadata-file=metadata.yaml --toc  -o "export/expose.pdf"
 
   # try to open file in preview
   open "export/expose.pdf"
@@ -137,12 +130,6 @@ build_book() {
 
   # combine triple new lines into one
   perl -pi -e 's/\n\n\n/\n\n/g' "$book_tmp"
-
-  # remove all new lines at the beginning of the file
-  perl -pi -e 's/^\n//g' "$book_tmp"
-
-  # remove all new lines at the end of the file
-  perl -pi -e 's/\n$//g' "$book_tmp"
 
   # convert to pdf
   pandoc "$book_tmp" -o "export/book.$extension"
@@ -216,6 +203,9 @@ case "$1" in
     echo "title: $TITLE" >> metadata.yaml
     echo "title_slug: $TITLE_SLUG" >> metadata.yaml
     echo "author: TODO" >> metadata.yaml
+    echo "date: TODO" >> metadata.yaml
+    echo "lang: TODO" >> metadata.yaml
+    echo "toc-title: TODO" >> metadata.yaml
 
     echo "Done. Now run 'ebg add part' to add a part to the book."
     echo "Also check for any TODOs in the files."
