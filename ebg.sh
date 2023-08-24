@@ -107,15 +107,15 @@ build_expose() {
   perl -ne 's/^\!include\s(.+)$/`cat $1`/e;print' expose/_expose.md > "$expose_tmp"
 
   # remove all tags from the markdown
-  perl -pi -e 's/---//g' "$expose_tmp"
-  perl -pi -e 's/^tag(.+)$//g' "$expose_tmp"
+  #perl -pi -e 's/---//g' "$expose_tmp"
+  #perl -pi -e 's/^tag(.+)$//g' "$expose_tmp"
 
   # combine triple new lines into one
   perl -pi -e 's/\n\n\n/\n\n/g' "$expose_tmp"
 
 
   # convert to pdf
-  pandoc "$expose_tmp" --metadata-file=metadata.yaml --toc  -o "export/expose.pdf"
+  pandoc metadata.yaml "$expose_tmp"  -o "export/expose.pdf"
 
   # try to open file in preview
   open "export/expose.pdf"
@@ -124,7 +124,9 @@ build_book() {
   extension=$1
   book_tmp="${TEMP_DIR}/book.md"
   # combine all the markdown files into one
-  perl -ne 's/^\!include\s(.+)$/`cat $1`/e;print' book/_toc.md > "$book_tmp"
+  perl -ne 's/^\!include\s(.+)$/`cat $1`/e;print' book/_toc.md > "$book_tmp"_1
+
+  perl -ne 's/^\!include\s(.+)$/`cat $1`/e;print' "$book_tmp"_1 > "$book_tmp"
 
   # remove all tags from the markdown
   perl -pi -e 's/---//g' "$book_tmp"
@@ -140,6 +142,71 @@ build_book() {
   open "export/book.$extension"
 }
 
+analyse_book_status() {
+  # Load every markdown-file under the book directory
+  # check for todos and print all of them
+  # also count the todos and print the number
+  # check every file for the tag "draft" and print all of them
+  # also count the drafts and print the number
+  # check every file for the tag "todo" and print all of them
+  # also count the todos and print the number
+  # check every file for the tag "done" and print all of them
+  # also count the dones and print the number
+  # calculate the percentage of done tags to other tags
+  # print the percentage
+  book_dir="book"
+  
+  # Initialize counters
+  todo_count=0
+  draft_count=0
+  done_count=0
+  
+  # Loop through markdown files in the book directory and subdirectories
+  while IFS= read -r -d '' file; do
+    # Extract tag from yaml part
+    tag=$(awk '/^tag:/ {print $2}' "$file")
+    
+    case "$tag" in
+      todo)
+        echo "TODO: $file"
+        ((todo_count++))
+        ;;
+      draft)
+        echo "Draft: $file"
+        ((draft_count++))
+        ;;
+      done)
+        echo "Done: $file"
+        ((done_count++))
+        ;;
+    esac
+    
+    # Check for TODO string in file
+    if grep -q "TODO" "$file"; then
+      echo "TODO found in $file"
+    fi
+    
+  done < <(find "$book_dir" -type f -name "*.md" -print0)
+  
+  total_files=$((todo_count + draft_count + done_count))
+  
+  echo "-------------------"
+  echo "Total TODOs: $todo_count"
+  echo "Total Drafts: $draft_count"
+  echo "Total Dones: $done_count"
+  echo "-------------------"
+  
+  # Calculate and print percentages
+  if ((total_files > 0)); then
+    done_percentage=$((done_count * 100 / total_files))
+    echo "Percentage Done: $done_percentage%"
+  else
+    echo "No files found."
+  fi
+
+
+
+}
 
 # Define usage message
 usage() {
@@ -152,6 +219,7 @@ usage() {
   echo "  build         - build the book or other artifacts"
   echo "    expose      - build the expose"
   echo "    book [extension] - build the book, optionally with a file extension (pdf, epub, html, etc.) Default is pdf"
+  echo "  status       - check the status of the book (TODOs, drafts, etc)"
   exit 10
 }
 
@@ -202,12 +270,20 @@ case "$1" in
     echo "export" >> .gitignore
 
     touch metadata.yaml
+    echo "---" > metadata.yaml
     echo "title: $TITLE" >> metadata.yaml
+    echo "subtitle: TODO" >> metadata.yaml
     echo "title_slug: $TITLE_SLUG" >> metadata.yaml
     echo "author: TODO" >> metadata.yaml
     echo "date: TODO" >> metadata.yaml
     echo "lang: TODO" >> metadata.yaml
-    echo "toc-title: TODO" >> metadata.yaml
+    echo "toc: true" >> metadata.yaml
+    echo "toc-depth: 2" >> metadata.yaml
+    echo "toc-title: Inhaltsverzeichnis" >> metadata.yaml
+    echo "numbersections: true" >> metadata.yaml
+    echo "include-before:" >> metadata.yaml
+    echo "- '\`\newpage{}\`{=latex}'" >> metadata.yaml
+    echo "---" >> metadata.yaml
 
     echo "Done. Now run 'ebg add part' to add a part to the book."
     echo "Also check for any TODOs in the files."
@@ -284,6 +360,10 @@ case "$1" in
         usage
         ;;
       esac
+    ;;
+  status)
+    echo "Analysing book..."
+    analyse_book_status
     ;;
   *)
     usage
